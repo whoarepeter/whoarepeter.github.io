@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone-to-PC QR Transfer</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+        input, button { margin: 10px 0; padding: 12px; font-size: 16px; width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #qrcode { margin: 20px 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>File Transfer</h2>
+
+        <!-- COMPUTER VIEW -->
+        <div id="computer-view">
+            <p>Scan this QR code with your phone to link devices:</p>
+            <div id="qrcode"></div>
+            <p id="status-text" style="color: #666;">Waiting for phone connection...</p>
+            <div id="incoming-files"></div>
+        </div>
+
+        <!-- PHONE VIEW -->
+        <div id="phone-view" class="hidden">
+            <p style="color: green; font-weight: bold;">Connected to Computer!</p>
+            <h3>Select File to Send</h3>
+            <input type="file" id="fileInput">
+            <button onclick="uploadFile()">Send to Computer</button>
+            <p id="upload-status"></p>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionIdParam = urlParams.get('session');
+
+        if (!sessionIdParam) {
+            // --- COMPUTER LOGIC ---
+            document.getElementById('computer-view').classList.remove('hidden');
+            document.getElementById('phone-view').classList.add('hidden');
+
+            // Generate a unique session ID for this computer screen
+            const sessionId = Math.random().toString(36.substring(2, 9));
+            socket.emit('join-session', sessionId);
+
+            // Construct mobile link pointing to this same app with the session parameter
+            const host = window.location.host;
+            const mobileUrl = `http://${host}/?session=${sessionId}`;
+
+            // Render QR code
+            const canvas = document.createElement('canvas');
+            document.getElementById('qrcode').appendChild(canvas);
+            QRCode.toCanvas(canvas, mobileUrl, { width: 220 }, (err) => {
+                if (err) console.error(err);
+            });
+
+            // Listen for files arriving from the phone
+            socket.on('file-ready', (data) => {
+                document.getElementById('status-text').innerText = "File received!";
+                const fileContainer = document.getElementById('incoming-files');
+                fileContainer.innerHTML += `
+                    <p>New file: <b>${data.filename}</b></p>
+                    <a href="${data.downloadUrl}" download><button>Download File</button></a>
+                `;
+            });
+
+        } else {
+            // --- PHONE LOGIC ---
+            document.getElementById('computer-view').classList.add('hidden');
+            document.getElementById('phone-view').classList.remove('hidden');
+
+            window.sessionId = sessionIdParam;
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) return alert('Please select a file first!');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            document.getElementById('upload-status').innerText = "Uploading...";
+
+            try {
+                const response = await fetch(`/api/upload/${window.sessionId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('upload-status').innerText = "Successfully sent to PC!";
+                    fileInput.value = '';
+                }
+            } catch (error) {
+                document.getElementById('upload-status').innerText = "Upload failed.";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
