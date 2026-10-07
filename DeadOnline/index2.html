@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background-color: #619c5c;
+            color: white;
+            position: relative;
+            z-index: 101; /* Keeps navbar above the overlay */
+        }
+
+        /* Hamburger Menu Icon */
+        .menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 25px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .menu span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+        }
+
+        /* 1. Slide-out Sidebar Styling */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Hidden completely off-screen to the left */
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+            transition: 0.3s ease; /* Makes the slide smooth */
+            padding-top: 80px; /* Pushes content down so it doesn't hide under the navbar */
+            z-index: 100;
+        }
+
+        /* Sidebar Links */
+        .sidebar a {
+            display: block;
+            padding: 15px 25px;
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: #f0f0f0;
+            color: #619c5c;
+        }
+
+        /* 2. The Open State (Applied via JavaScript) */
+        .sidebar.open {
+            left: 0; /* Slides into view */
+        }
+
+        /* 3. Dark Background Overlay (Optional, but great UX) */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+            z-index: 99;
+        }
+
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="navbar">
+        <div class="menu" id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="appName">Calendy</div>
+    </div>
+
+    <!-- Slide-out Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <a href="#">📅 Today's Schedule</a>
+        <a href="#">🗓️ Month View</a>
+        <a href="#">➕ Add Event</a>
+        <a href="#">⚙️ Settings</a>
+    </div>
+
+    <!-- Dark Background Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>a<br>
+    <!-- JavaScript to handle the slide toggle -->
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        // When hamburger is clicked, toggle the 'open' class
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+
+        // Clicking the background overlay closes the menu
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+    </script>
+
+</body>
+</html>

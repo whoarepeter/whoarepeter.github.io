@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeadOnline - about</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            padding-top: 30px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            /* left: 0; */
+            width: 100%;
+            padding: 0px 0px;
+            align-items: center;
+            display: flex;
+            background-color: #619c5c;
+            font-family: sans-serif;
+            color: #e2f1e1;
+            /* position: relative; */
+            z-index: 1000;
+        }
+        .menu {
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 16px;
+            height: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .menu:hover {
+            background-color: #41703d;
+        }
+        .menu span {
+            display: block;
+            height: 2px;
+            background-color: #e2f1e1;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+        .appName {
+            padding: 0px 10px;
+            /* font-weight: bold; */
+            font-size: 20px;
+        }
+        .appName a {
+            text-decoration: none;
+            color: #e2f1e1;
+        }
+        .sidebar {
+            position: fixed;
+            top: 46px;
+            left: -260px;
+            width: 250px;
+            height: calc(100vh - 46px - 20px);
+            background-color: #e2f5e0;
+            box-shadow: 0 0 0;
+            padding: 10px 0px;
+            transition: left 0.2s ease;
+            overflow-y: auto;
+            z-index: 100;
+            scrollbar-width: thin;
+            scrollbar-color: #b1d1ae #e2f5e0;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #0e4709;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #619c5c;
+            color: #e2f1e1;
+        }
+        .sidebar.open {
+            box-shadow: 1px 0 100px #619c5cff;
+            left: 0px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #00000066;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 99;
+        }
+        .overlay.open {
+            opacity: 0.5;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="navbar">
+        <div class="menu" id="menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="appName">
+            <a href="/DeadOnline/">DeadOnline</a>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <a href="#">📅 Today's Schedule</a>
+        <a href="#">🗓️ Month View</a>
+        <a href="#">➕ Add Event</a>
+        <a href="#">⚙️ Settings</a>
+        <a href="/DeadOnline/about/">ℹ️ About</a>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <script>
+        menu.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+    </script>
+</body>
+</html>
