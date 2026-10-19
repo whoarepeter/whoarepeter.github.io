@@ -1,0 +1,116 @@
+<html>
+    <head></head>
+
+    <style>
+        /* .lesson {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        } */
+        .heading {
+            font-family: sans-serif;
+            margin: 5px;
+            padding: 6px;
+            color: #378331;
+        }
+        .lesson {
+            margin: 5px;
+            font-size: 20px;
+            /* font-weight: bold; */
+            padding: 6px 14px;
+            border-radius: 7px;
+            background-color: #f1f8f0;
+            color: #619c5c;
+            border-color: #378331;
+            border-style: solid;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .lesson:hover {
+            background-color: #d4ddd3;
+            color: #619c5c;
+        }
+    </style>
+
+    <body>
+        <h1 class="heading">CSCI3130 Recording!!</h1>
+        <div id="lesson"></div>
+    </body>
+</html>
+
+
+<script>
+
+    const lessons = {
+        "09/14": {
+            link: "https://cuhk.zoom.us/rec/share/oSphGQAoBJ4m7K5l-MB6xuiGovrUUMPUqNU8ZLTQzWb83jbGz6nq5kwwV44D3a6H.tFL9w51AJ7Mh551n",
+            password: "7A5.sN71"
+        },
+        "09/15": {
+            link: "https://cuhk.zoom.us/rec/share/g1Z-0_WPa2-7oQmiEmWS6mfjrry6-3qoiftVrnR82Mum6kuJPVoi6kngZ2-lameX.aJ9e5ziSTt1eIBET",
+            password: "i#L+u@1q"
+        },
+        "09/21": {
+            link: "https://cuhk.zoom.us/rec/share/iTGaVDbeM0jfZqHpZ7gLnFNPlCbs7m2En3rWE9e8P04LkA-A7_ViCCcdP831Su_m.Ns6ztVSzldNt9rfe",
+            password: "K3xtw$^S"
+        },
+        "09/22": {
+            link: "https://cuhk.zoom.us/rec/share/NFJADVu9XTgpHArpzkC4BTpi7i2rxqyKxGl20o6iCdwugy_YFk1WjSxU1LHqlQ6w.ZhVMNDG_S9GMic6K",
+            password: "8&5A+GXx"
+        },
+        "09/28": {
+            link: "https://cuhk.zoom.us/rec/share/LQDRmtdqMJOn6SFzjvM0N2QtM-t1GL0mXh1EHEQJuj_ukXCP-IxiPoOhI_ezxstw.Q6l4RstO0-PIyy3h",
+            password: "Evt3t+pz"
+        },
+        "09/29": {
+            link: "https://cuhk.zoom.us/rec/share/3ahcAHUzbmej0sAX68qud55oD_nlk1Z1F5T_xHJDO8AO_PHQYKCSuvdf7knrOl12.fFfAiQkqysCQl1-l",
+            password: "b&9hjH^L"
+        },
+        "10/05": {
+            link: "https://cuhk.zoom.us/rec/share/tH6argkGcjW-QhwPwNSpEvvNxVpcPbh3-L_QLTvVGpjR0v_w-9u3MsXBkOABpGQV.FvL6hEOa0IvoDw-F",
+            password: "h!aAI5%d"
+        },
+        "10/06": {
+            link: "https://cuhk.zoom.us/rec/share/h5HV2K7PGfDUXpxbQIeEn7KWfek_lAIgciJO3wim4pOoDvhzvGGRH4NXJTmVP6C7.qgkgrsn-6FsOgNnR",
+            password: "QX7qS#h6"
+        },
+        "10/12": {
+            link: "https://cuhk.zoom.us/rec/share/0zWclgUiAQSY6PPWGlxyWq_56PeeoQ_yN7CDrwZuTUtVjGuLLVEJ-UfJanbgJhbM.8qm-0VQeDrLBq0m7",
+            password: "2!$s^ZxK"
+        },
+        "10/13": {
+            link: "https://cuhk.zoom.us/rec/share/aDB3diucw21QaF_Ix3eAcaVWnKTnw9z1tkhfk1A1Qd-cthWwTTRxZsoGj5O5oRx7.zorsVwXDdl_ATdYT",
+            password: "78&9fB0o"
+        },
+        "": {
+            link: "",
+            password: ""
+        },
+        "": {
+            link: "",
+            password: ""
+        }
+    }
+
+
+    const container = document.getElementById("lesson");
+
+    for (const id in lessons) {
+        const button = document.createElement("button");
+        button.className = "lesson";
+        button.innerText = id;
+        button.id = id;
+
+        button.onclick = function() {
+            watchlesson(id);
+        };
+
+        container.appendChild(button);
+    }
+
+    function watchlesson(id) {
+        const data = lessons[id];
+        navigator.clipboard.writeText(data.password);
+        window.location.href = data.link;
+    }
+</script>
