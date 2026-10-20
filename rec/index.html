@@ -13,7 +13,7 @@
             padding: 6px;
             color: #378331;
         }
-        .lesson {
+        .button {
             margin: 5px;
             font-size: 20px;
             /* font-weight: bold; */
@@ -26,7 +26,7 @@
             transition: 0.2s;
             cursor: pointer;
         }
-        .lesson:hover {
+        .button:hover {
             background-color: #d4ddd3;
             color: #619c5c;
         }
@@ -34,7 +34,9 @@
 
     <body>
         <h1 class="heading">CSCI3130 Recording!!</h1>
-        <div id="lesson"></div>
+        <div id="lesson"></div><br>
+        <h1 class="heading">CSCI3160 website</h1>
+        <button onclick="location.href='https://www.cse.cuhk.edu.hk/~taoyf/course/3160/26-fall%20/index.html'" type="button" class="button">CSCI3160 website</button>
     </body>
 </html>
 
@@ -97,7 +99,7 @@
 
     for (const id in lessons) {
         const button = document.createElement("button");
-        button.className = "lesson";
+        button.className = "button lesson";
         button.innerText = id;
         button.id = id;
 
