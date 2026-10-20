@@ -30,9 +30,32 @@
             background-color: #d4ddd3;
             color: #619c5c;
         }
+        .timetable {
+            position: fixed;
+            right: 10px;
+            top: 10px;
+            transition: 0.2s;
+        }
+        .timetable.show {
+            position: fixed;
+            top: 10px;
+            bottom: 10px;
+            right: 50%;
+            transform: translateX(50%);
+            align-items: center;
+            padding: 10px 20px;
+        }
+        .timetable_img {
+            display: none;
+        }
+        .timetable_img.show {
+            display: block;
+            height: 95%;
+        }
     </style>
 
     <body>
+        <button onclick="" type="button" id="timetable" class="button timetable">Timetable<br><img src="year3_sem1_timetable.jpg" alt="failed timetable" id="timetable_img" class="timetable_img"></button>
         <h1 class="heading">CSCI3130 Recording!!</h1>
         <div id="lesson"></div><br>
         <h1 class="heading">CSCI3160 website</h1>
@@ -42,6 +65,17 @@
 
 
 <script>
+    
+    const timetable = document.getElementById("timetable");
+    const timetable_img = document.getElementById("timetable_img");
+    timetable.addEventListener("click", () => {
+        timetable.classList.toggle("show");
+        timetable_img.classList.toggle("show");
+    });
+    timetable_img.addEventListener("click", () => {
+        timetable.classList.toggle("show");
+        timetable_img.classList.toggle("show");
+    });
 
     const lessons = {
         "09/14": {
