@@ -55,9 +55,11 @@
     .login {
         margin-left: auto;
         padding: 0px 15px;
+        display: flex;
+        align-items: center;
     }
     .login button {
-        font-size: 14px;
+        font-size: 16px;
         /* font-weight: bold; */
         padding: 5px 11px;
         border-radius: 7px;
@@ -66,10 +68,19 @@
         border-color: #378331;
         border-style: solid;
         transition: 0.2s;
+        cursor: pointer;
     }
     .login button:hover {
         background-color: #d4ddd3;
         color: #619c5c;
+    }
+    #user-icon {
+        display: block;
+        width: 35px;
+    }
+    #user-icon-button {
+        padding: 0px 0px;
+        overflow: hidden;
     }
 
     .sidebar {
@@ -148,6 +159,10 @@
         opacity: 1;
         transform: translateY(0px);
     }
+
+    .hidden {
+        display: none;
+    }
 </style>
 
 <div class="navbar">
@@ -161,6 +176,7 @@
     </div>
     <div class="login">
         <button id="login">Sign in</button>
+        <button id="user-icon-button" class="hidden"><img id="user-icon" draggable="false" alt="icon"></button>
     </div>
 </div>
 
@@ -231,11 +247,29 @@
     const db = getFirestore(app);
 
     const login = document.getElementById("login");
+    const userIcon = document.getElementById("user-icon");
+    const userIconButton = document.getElementById("user-icon-button");
+
     login.addEventListener("click", async () => {
         try {
             await signInWithPopup(auth, new GoogleAuthProvider());
         } catch (error) {
             popup("Login Failed (" + error.message + ")");
+        }
+    });
+
+    userIconButton.addEventListener("click", async () => {
+        popup("Icon Clicked!");
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            login.classList.add("hidden");
+            userIcon.src = user.photoURL;
+            userIconButton.classList.remove("hidden");
+        } else {
+            login.classList.remove("hidden");
+            userIconButton.classList.add("hidden");
         }
     });
 </script>
