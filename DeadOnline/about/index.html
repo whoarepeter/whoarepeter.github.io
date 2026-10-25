@@ -9,7 +9,7 @@
 
 <body>
     
-    <!-- Framework -->>
+    <!-- Framework -->
     <div id="framework"></div>
     <script>
         fetch("framework.html")
@@ -20,7 +20,11 @@
             const scripts = container.querySelectorAll("script");
             scripts.forEach(script => {
                 const newScript = document.createElement("script");
-                newScript.text = script.innerHTML;
+                Array.from(script.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                if (script.src) newScript.src = script.src;
+                else newScript.text = script.innerHTML;
                 document.body.appendChild(newScript);
             });
         });
