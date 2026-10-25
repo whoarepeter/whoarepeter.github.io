@@ -4,7 +4,7 @@
     body {
         margin: 0;
         font-family: sans-serif;
-        padding-top: 30px;
+        padding-top: 50px;
     }
 
     .navbar {
@@ -74,7 +74,7 @@
         background-color: #d4ddd3;
         color: #619c5c;
     }
-    #user-icon {
+    .user-icon {
         display: block;
         width: 35px;
     }
@@ -131,6 +131,67 @@
         visibility: visible;
     }
 
+    .user-menu {
+        position: fixed;
+        background-color: #619c5c;
+        top: 50px;
+        right: 15px;
+        margin-top: 8px;
+        background-color: #e2f5e0;
+        border-radius: 8px;
+        box-shadow: 2px 2px 5px #619c5cff;
+        /* width: 200px; */
+        overflow: hidden;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition: 0.2s;
+    }
+    .user-menu div > * {
+        width: 100%;
+        background-color: transparent;
+        display: block;
+        padding: 10px 20px;
+        font-size: 18px;
+        text-align: left;
+        color: #0e4709;
+    }
+    .user-menu > div + div {
+        border-top: 1px solid #0e4709;
+        margin-top: 2px;
+        padding-top: 2px;
+    }
+    .user-info {
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    .user-info > .user-icon {
+        width: 35px;
+        padding: 0px 0px;
+        border-color: #378331;
+        border-style: solid;
+        border-radius: 50%;
+        border: 2px solid #378331;
+    }
+    .user-info div {
+        padding: 0px 0px;
+        padding-left: 5px;
+    }
+    .user-info div > .user-email {
+        font-size: 12px;
+    }
+    .user-menu button {
+        border: 0px;
+        transition: 0.3s;
+    }
+    .user-menu button:hover {
+        background-color: #619c5c;
+        color: #f1f8f0;
+    }
+
     .popups {
         position: fixed;
         bottom: 10%;
@@ -163,6 +224,11 @@
     .hidden {
         display: none;
     }
+    .fade-away {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
 </style>
 
 <div class="navbar">
@@ -176,7 +242,7 @@
     </div>
     <div class="login">
         <button id="login">Sign in</button>
-        <button id="user-icon-button" class="hidden"><img id="user-icon" draggable="false" alt="icon"></button>
+        <button id="user-icon-button" class="hidden"><img class="user-icon" draggable="false" alt="icon"></button>
     </div>
 </div>
 
@@ -199,6 +265,36 @@
     overlay.addEventListener("click", () => {
         sidebar.classList.toggle("open");
         overlay.classList.toggle("open");
+    });
+</script>
+
+<div class="user-menu fade-away" id="user-menu">
+    <div class="user-info">
+        <img class="user-icon" draggable="false" alt="icon">
+        <div>
+            <div class="user-name" id="user-name">Name</div>
+            <div class="user-email" id="user-email">Email</div>
+        </div>
+    </div>
+    <div class="user-options">
+        <button id="sign-out">🔓 Sign Out</button>
+    </div>
+</div>
+<script>
+    const userIconButton = document.getElementById("user-icon-button");
+    const userMenu = document.getElementById("user-menu");
+
+    userIconButton.addEventListener("click", () => {
+        userMenu.classList.toggle("fade-away");
+    });
+    userMenu.addEventListener("click", () => {
+        if (event.target.closest("button")) userMenu.classList.add("fade-away");
+    });
+    document.addEventListener("click", (event) => {
+        const clicked = userMenu.contains(event.target) || userIconButton.contains(event.target);
+        if (!clicked && !userMenu.classList.contains("fade-away")) {
+            userMenu.classList.add("fade-away");
+        }
     });
 </script>
 
@@ -240,15 +336,21 @@
     import {
         getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-            import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import {
+        getFirestore, collection, addDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     const login = document.getElementById("login");
-    const userIcon = document.getElementById("user-icon");
+    const userIcons = document.querySelectorAll(".user-icon");
     const userIconButton = document.getElementById("user-icon-button");
+    const signOutButton = document.getElementById("sign-out");
+    const userMenu = document.getElementById("user-menu");
+    const userName = document.getElementById("user-name");
+    const userEmail = document.getElementById("user-email");
 
     login.addEventListener("click", async () => {
         try {
@@ -258,18 +360,24 @@
         }
     });
 
-    userIconButton.addEventListener("click", async () => {
-        popup("Icon Clicked!");
+    signOutButton.addEventListener('click', () => {
+        signOut(auth);
     });
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             login.classList.add("hidden");
-            userIcon.src = user.photoURL;
+            userIcons.forEach((icon) => {
+                icon.src = user.photoURL;
+            });
             userIconButton.classList.remove("hidden");
+            userMenu.classList.add("fade-away");
+            userName.innerText = user.displayName;
+            userEmail.innerText = user.email;
         } else {
             login.classList.remove("hidden");
             userIconButton.classList.add("hidden");
+            userMenu.classList.add("fade-away");
         }
     });
 </script>
