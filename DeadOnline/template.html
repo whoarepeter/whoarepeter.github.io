@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../">
+    <title>DeadOnline About</title>
+</head>
+
+<body>
+    
+    <!-- Framework -->
+    <div id="framework"></div>
+    <script>
+        fetch("framework.html")
+        .then(response => response.text())
+        .then(data => {
+            const container = document.getElementById("framework");
+            container.innerHTML = data;
+            const scripts = container.querySelectorAll("script");
+            scripts.forEach(script => {
+                const newScript = document.createElement("script");
+                Array.from(script.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                if (script.src) newScript.src = script.src;
+                else newScript.text = script.innerHTML;
+                document.body.appendChild(newScript);
+            });
+        });
+    </script>
+
+</body>
+</html>

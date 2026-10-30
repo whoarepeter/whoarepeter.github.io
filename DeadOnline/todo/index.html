@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../">
+    <title>To-do List - DeadOnline</title>
+
+    <style>
+        .main-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: calc(100vh - 50px);
+            width: 100%;
+        }
+        .content {
+            display: flex;
+            flex-direction: row;
+            padding: 20px 30px;
+            padding-top: 10px;
+            gap: 20px;
+            height: 100%;
+        }
+        .content > div {
+            border-radius: 3px;
+            border: 3px solid #619c5c;
+        }
+        .labels {
+            width: 250px;
+            
+        }
+        .todolist {
+            flex-grow: 1;
+            
+        }
+        .todo {
+            /* width: 50%; */
+            
+            
+        }
+        .details {
+            /* display: none; */
+            /* width: 400px; */
+            /* width: 50%; */
+        }
+        /* .details.open {
+            display: flex;
+        } */
+        .namebar {
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #619c5c;
+            color: #f1f8f0;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Framework -->
+    <div id="framework"></div>
+    <script>
+        fetch("framework.html")
+        .then(response => response.text())
+        .then(data => {
+            const container = document.getElementById("framework");
+            container.innerHTML = data;
+            const scripts = container.querySelectorAll("script");
+            scripts.forEach(script => {
+                const newScript = document.createElement("script");
+                Array.from(script.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                if (script.src) newScript.src = script.src;
+                else newScript.text = script.innerHTML;
+                document.body.appendChild(newScript);
+            });
+        });
+    </script>
+
+    <div class="main-area">
+        <div class="content">
+            <div class="labels">
+                <div class="namebar">Labels</div>
+            </div>
+            <div class="todolist" id="todolist">
+                <div class="todo">
+                    <div class="namebar">-- To Do List --</div>
+                </div>
+                <!-- <div class="details" id="details">
+                    <div class="namebar">Details</div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <script>
+        const todolist = document.getElementById("todolist");
+        const details = document.getElementById("details");
+        
+        todolist.addEventListener("click", () => {
+            details.classList.toggle("open");
+        });
+    </script>
+
+</body>
+</html>
