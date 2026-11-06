@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Testing",
+        "lat": 22.4190,
+        "lng": 114.2066,
+        "desc": "small desc"
+    },
+    {
+        "name": "Testing2",
+        "lat": 22.4182,
+        "lng": 114.2088,
+        "desc": "small desc"
+    }
+]
