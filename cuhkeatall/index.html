@@ -41,7 +41,7 @@
             justify-content: space-between;
             cursor: pointer;
             transition: 0.2s ease;
-            z-index: 1003;
+            z-index: 1004;
         }
         #menu span {
             display: block;
@@ -75,7 +75,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            z-index: 1002;
+            z-index: 1003;
         }
         #sidebar .name {
             padding: 18px;
@@ -118,7 +118,7 @@
             opacity: 0;
             visibility: hidden;
             transition: 0.3s;
-            z-index: 1001;
+            z-index: 1002;
         }
         #overlay.open {
             opacity: 0.5;
@@ -136,6 +136,7 @@
             box-shadow: 3px 4px 6px #00000050;
             width: max-content;
             max-width: calc(100vw - 80px);
+            transition: 0.3s ease;
         }
         #description {
             transform: translateY(-50%);
@@ -157,6 +158,8 @@
             bottom: 18px;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
+            transition: 0.3s ease;
         }
         /* #map-bottons #zoomin, #map-bottons #zoomout{
             opacity: 0;
@@ -186,6 +189,91 @@
             padding: 10px 10px;
             display: flex;
             flex-direction: column;
+            transition: 0.3s ease;
+        }
+
+        #eye-botton {
+            right: 15px;
+            top: 13px;
+            padding: 10px 10px;
+            transition: 0.3s ease;
+        }
+        #eye-botton div > svg {
+            vertical-align: middle;
+        }
+        #eye-botton div {
+            display: none;
+        }
+        #eye-botton .toggled {
+            display: block;
+        }
+        body:has(#eye-botton .close.toggled) .overlay:not(#eye-botton) {
+            display: none;
+        }
+
+        #restaurant-info {
+            display: auto;
+            right: 15px;
+            top: 15px;
+            bottom: 15px;
+            width: 30%;
+            position: fixed;
+            z-index: 1001;
+            border-radius: 10px;
+            background: #ffffff50;
+            backdrop-filter: blur(20px) saturate(120%);
+            /* -webkit-backdrop-filter: blur(5px) saturate(120%); */
+            color: #000000;
+            padding: 10px 10px;
+        }
+        #restaurant-info .close {
+            position: fixed;
+            right: 10px;
+            top: 10px;
+            width: 24px;
+            height: 24px;
+            font-size: 40px;
+            /* border: 1px solid #00000020; */
+            cursor: pointer;
+        }
+        #restaurant-info .close span {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #000000;
+            border-radius: 2px;
+        }
+        #restaurant-info .close span:nth-child(1) {
+            transform: translateY(-50%) rotate(45deg);
+        }
+        #restaurant-info .close span:nth-child(2) {
+            transform: translateY(-50%) rotate(-45deg);
+        }
+        @media screen and (max-width: 800px) {
+            #restaurant-info {
+                top: auto;
+                height: 35%;
+                left: 15px;
+                width: auto
+            }
+            body:has(#restaurant-info:not(.hidden)) :is(#map-bottons, #rest-botton) {
+                bottom: calc(35% + 20px + 15px + 10px);
+            }
+        }
+        @media screen and (min-width: 801px) {
+            body:has(#restaurant-info:not(.hidden)) #title {
+                left: calc(35% - 10px - 7.5px);
+                transform: translateX(-50%);
+            }
+            body:has(#restaurant-info:not(.hidden)) :is(#rest-botton, #eye-botton) {
+                right: calc(30% + 20px + 15px + 15px);
+            }
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -194,7 +282,10 @@
     <div id="map"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
-        const map = L.map("map", {zoomControl: false, zoomSnap: 0.25}).setView([22.4185, 114.2075], 16);
+        const map = L.map("map", {zoomControl: false, doubleClickZoom: false, zoomSnap: 0.25}).setView([22.4185, 114.2075], 16)
+                    .on("click", () => {
+                        Restaurant(null, null, null);
+                    });
 
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
@@ -202,12 +293,16 @@
         }).addTo(map);
 
         fetch("restaurants.json").then(res => res.json()).then(restaurants => {
-            restaurants.forEach(p => {
+            console.log(restaurants);
+            console.log([...new Map(restaurants.map(r => [r.no, r])).values()]);
+            [...new Map(restaurants.map(r => [r.no, r])).values()].forEach(p => {
                 L.marker([p.lat, p.lng]).addTo(map)
-                .bindPopup(`<h3>${p.name}</h3><p>${p.desc}</p>`);
+                // .bindPopup(`<h3>${p.name}</h3><p>${p.desc}</p>`)
+                .on("click", () => {
+                    Restaurant(p.no, p.lat, p.lng);
+                });
             });
         }).catch(err => console.error("Problem:", err));
-
     </script>
 
     <div class="overlay black" id="menu"><span></span><span></span><span></span></div>
@@ -266,4 +361,47 @@
         <input type="checkbox"></input>
         <div class="name">餐廳名稱</div>
     </div>
+
+    <div class="overlay black" id="eye-botton" title="顯示邊邊">
+        <div class="close" id="eye-botton-open"><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="open toggled" id="eye-botton-close"><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <script>
+        const eyeBotton = document.getElementById("eye-botton");
+        const eyeBottonOpen = document.getElementById("eye-botton-open");
+        const eyeBottonClose = document.getElementById("eye-botton-close");
+        
+        eyeBotton.addEventListener("click", () => {
+            eyeBottonOpen.classList.toggle("toggled");
+            eyeBottonClose.classList.toggle("toggled");
+        });
+    </script>
+
+    <div class="hidden" id="restaurant-info">
+        <div class="close" id="restaurant-info-close"><span></span><span></span></div>
+        test
+    </div>
+    <script>
+        const restaurantInfo = document.getElementById("restaurant-info");
+        let selected = null;
+        function Restaurant(restid, lat, lng) {
+            if (selected == null && restid == null) return;
+            if (selected == null) {
+                // map.panTo([lat, lng], {duration: 0.7});
+                restaurantInfo.classList.toggle("hidden");
+                selected = restid;
+            } else if (restid == selected || restid == null) {
+                restaurantInfo.classList.toggle("hidden");
+                selected = null;
+            } else {
+                // map.panTo([lat, lng], {duration: 0.7});
+                selected = restid;
+            }
+        }
+
+        const restaurantInfoClose = document.getElementById("restaurant-info-close");
+        restaurantInfoClose.addEventListener("click", () => {
+            Restaurant(null, null, null);
+        });
+    </script>
 </body>
