@@ -15,6 +15,24 @@
         #map {
             height: 100vh;
         }
+        .leaflet-marker-icon {
+            filter: hue-rotate(160deg) drop-shadow(0 10px 5px #ffffff) drop-shadow(0 2px 3px rgba(0,0,0,.4));
+        }
+        .pin-label {
+            /* background-color: none;
+            box-shadow: 0 0 0;
+            text-shadow: -2px -2px 0 #ffffff, 2px -2px 0 #ffffff, -2px 2px 0 #ffffff, 2px 2px 0 #ffffff; */
+            border: 0;
+            border-radius: 6px;
+            background-color: #000000a0;
+            padding: 2px 4px;
+            box-shadow: 0 1px 4px #000000a0;
+            color: #ffffff;
+            font: 500 14px system-ui, sans-serif;
+        }
+        .pin-label .hidden {
+            display: none;
+        }
 
         .overlay {
             position: fixed;
@@ -293,14 +311,13 @@
         }).addTo(map);
 
         fetch("restaurants.json").then(res => res.json()).then(restaurants => {
-            console.log(restaurants);
-            console.log([...new Map(restaurants.map(r => [r.no, r])).values()]);
-            [...new Map(restaurants.map(r => [r.no, r])).values()].forEach(p => {
+            // console.log(restaurants);
+            // console.log([...new Map([...restaurants].sort((a, b) => new Date(a.date) - new Date(b.date)).map(r => [r.no, r])).values()]);
+            restaurants.forEach(p => {
                 L.marker([p.lat, p.lng]).addTo(map)
-                // .bindPopup(`<h3>${p.name}</h3><p>${p.desc}</p>`)
                 .on("click", () => {
                     Restaurant(p.no, p.lat, p.lng);
-                });
+                }).bindTooltip(p.name, {permanent: true, direction: "center", offset: [-15, -25], className: "pin-label"});
             });
         }).catch(err => console.error("Problem:", err));
     </script>
@@ -405,3 +422,5 @@
         });
     </script>
 </body>
+
+<!-- todo! 1. change pin to svg or png? 2. rest name show botton -->

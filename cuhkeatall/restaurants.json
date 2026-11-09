@@ -1,14 +1,14 @@
 [
     {
-        "name": "Testing",
-        "lat": 22.4190,
-        "lng": 114.2066,
-        "desc": "small desc"
+        "no": 1,
+        "name": "subway",
+        "lat": 22.41952,
+        "lng": 114.20853
     },
     {
-        "name": "Testing2",
-        "lat": 22.4182,
-        "lng": 114.2088,
-        "desc": "small desc"
+        "no": 2,
+        "name": "CU閣CAFE",
+        "lat": 22.41828,
+        "lng": 114.20545
     }
 ]
