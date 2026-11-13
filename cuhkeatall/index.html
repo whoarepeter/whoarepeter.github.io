@@ -17,17 +17,22 @@
         }
         .leaflet-marker-icon {
             filter: drop-shadow(0 2px 3px #000000aa);
+            z-index: 1998 !important;
+        }
+        .pin svg {
+            transition: scale 0.5s ease;
             transform-origin: bottom center;
-            transition: 0.3s ease;
         }
-        .leaflet-marker-icon.selected {
+        .pin.selected svg {
+            scale: 1.3;
+        }
+        .pin.selected {
             filter: drop-shadow(0 2px 3px #000000ff);
-            transform: scale(1.3);
+            z-index: 2000 !important;
         }
-        .pin-label {
-            /* background-color: none;
-            box-shadow: 0 0 0;
-            text-shadow: -2px -2px 0 #ffffff, 2px -2px 0 #ffffff, -2px 2px 0 #ffffff, 2px 2px 0 #ffffff; */
+        .pin-tooltip {
+            display: inline-block;
+            white-space: nowrap;
             border: 0;
             border-radius: 6px;
             background-color: #000000a0;
@@ -35,17 +40,28 @@
             box-shadow: 0 1px 4px #000000a0;
             color: #ffffff;
             font: 500 14px system-ui, sans-serif;
-            transform-origin: center center;
-            transition: background-color 0.3s ease;
+            transform-origin: bottom center;
+            transition: background-color 0.3s ease, scale 0.3s ease, translate 0.3s ease;
+        }
+        .pin-label {
+            background: none;
+            border: 0;
+            box-shadow: none;
+            padding: 0;
+            z-index: 1999 !important;
         }
         .pin-label.selected {
-            transform: scale(1.3);
-            background-color: #000000ff;
-            font: 700 18px system-ui, sans-serif;
-            font-style: bold;
-            z-index: 2000;
+            font-weight: bold;
+            display: flex !important;
+            z-index: 2001 !important;
+        }
+        .pin-label.selected .pin-tooltip {
+            scale: 1.3;
+            background-color: #000000;
+            translate: 0 -15px;
         }
         .pin-label .hidden {
+            opacity: 0;
             display: none;
         }
 
@@ -348,10 +364,10 @@
             restaurants.forEach(p => {
                 const marker = L.marker([p.lat, p.lng], {icon: icon}).addTo(map)
                     .on("click", () => {
-                        Restaurant(p.no, p.lat, p.lng);
+                        Restaurant(p.id, p.lat, p.lng);
                     })
-                    .bindTooltip(p.name, {permanent: true, direction: "center", offset: [0, -50], className: "pin-label"});
-                markers[p.no] = marker;
+                    .bindTooltip(`<span class="pin-tooltip">${p.name}</span>`, {permanent: true, direction: "center", offset: [0, -50], className: "pin-label", pane: "markerPane"});
+                markers[p.id] = marker;
             });
         }).catch(err => console.error("Problem:", err));
     </script>
@@ -443,36 +459,58 @@
 
     <div class="hidden" id="restaurant-info">
         <div class="close" id="restaurant-info-close"><span></span><span></span></div>
-        test
+        <div id="restaurant-container">暫時未有此餐廳資料</div>
     </div>
     <script>
         const restaurantInfo = document.getElementById("restaurant-info");
+        const restaurantContainer = document.getElementById("restaurant-container");
         let selected = null;
+
+        let details = [];
+        fetch("details.json").then(res => res.json()).then(Details => {
+            details = Details;
+        }).catch(err => console.error("Problem:", err));
+
+        function getDetails(restid) {
+            console.log(details.filter(rest => rest.id === restid));
+            return details.filter(rest => rest.id === restid);
+        }
+
+        function toggleSelected(restid) {
+                markers[restid].getElement().classList.toggle("selected");
+                markers[restid].getTooltip()?.getElement().classList.toggle("selected");
+                // markers[restid].getTooltip().update();
+        }
+
         function Restaurant(restid, lat, lng) {
             if (selected == null && restid == null) return;
-            if (selected == null) {
-                // map.panTo([lat, lng], {duration: 0.7});
+            if (restid == selected || restid == null) {
                 restaurantInfo.classList.toggle("hidden");
-                selected = restid;
-                markers[selected].getElement().classList.toggle("selected");
-                markers[selected].getTooltip()?.getElement().classList.toggle("selected");
-                markers[selected].getTooltip().update();
-            } else if (restid == selected || restid == null) {
-                restaurantInfo.classList.toggle("hidden");
-                markers[selected].getElement().classList.toggle("selected");
-                markers[selected].getTooltip()?.getElement().classList.toggle("selected");
-                markers[selected].getTooltip().update();
+                toggleSelected(selected);
                 selected = null;
-            } else {
-                // map.panTo([lat, lng], {duration: 0.7});
-                markers[selected].getElement().classList.toggle("selected");
-                markers[selected].getTooltip()?.getElement().classList.toggle("selected");
-                markers[selected].getTooltip().update();
-                selected = restid;
-                markers[selected].getElement().classList.toggle("selected");
-                markers[selected].getTooltip()?.getElement().classList.toggle("selected");
-                markers[selected].getTooltip().update();
+                return;
             }
+            
+            if (selected == null) restaurantInfo.classList.toggle("hidden");
+            else toggleSelected(selected);
+
+            // map.panTo([lat, lng], {duration: 0.7});
+            selected = restid;
+            toggleSelected(selected);
+
+            restaurantContainer.replaceChildren();
+
+            let restDetails = getDetails(restid)
+            if (restDetails.length == 0) {
+                const info = document.createElement("div");
+                info.textContent = "暫時未有此餐廳資料";
+                restaurantContainer.appendChild(info);
+                return;
+            }
+            const restname = document.createElement("div");
+            restname.textContent = restDetails;
+            // restname.className = "restaurant-info-name";
+            restaurantContainer.appendChild(restname);
         }
 
         const restaurantInfoClose = document.getElementById("restaurant-info-close");
@@ -481,3 +519,5 @@
         });
     </script>
 </body>
+
+<!-- add different map styles, fix unshow restname tool swift, add panto middle when selected -->
