@@ -20,14 +20,14 @@
             z-index: 1998 !important;
         }
         .pin svg {
-            transition: scale 0.5s ease;
             transform-origin: bottom center;
+            transition: scale 0.5s ease;
         }
         .pin.selected svg {
             scale: 1.3;
         }
         .pin.selected {
-            filter: drop-shadow(0 2px 3px #000000ff);
+            filter: drop-shadow(0 3px 5px #000000ff);
             z-index: 2000 !important;
         }
         .pin-tooltip {
@@ -276,6 +276,7 @@
             top: 15px;
             bottom: 15px;
             width: 30%;
+            /* max-width: 350px; */
             position: fixed;
             z-index: 1001;
             border-radius: 10px;
@@ -284,6 +285,7 @@
             /* -webkit-backdrop-filter: blur(5px) saturate(120%); */
             color: #000000;
             padding: 10px 10px;
+            overflow: hidden;
         }
         #restaurant-info .close {
             position: fixed;
@@ -329,6 +331,44 @@
             body:has(#restaurant-info:not(.hidden)) :is(#rest-botton, #eye-botton) {
                 right: calc(30% + 20px + 15px + 15px);
             }
+        }
+
+        #restaurant-container {
+            padding: 0px 5px;
+            font-size: 16px;
+        }
+        .restaurant-record {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .restaurant-record-restname-offical {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .restaurant-record-restStatus {
+            font-size: 14px;
+            font-weight: normal;
+            background-color: #ff4242;
+            color: #FFFFFF;
+            padding: 1.5px 3px;
+            border-radius: 3px;
+        }
+        .restaurant-record-restname-others {
+            font-size: 14px;
+            color: #444444;
+        }
+        .restaurant-record-restPhoto {
+            display: flex;
+            justify-content: center;
+        }
+        .restaurant-record-restPhoto > img {
+            width: 100%;
+            max-width: 300px;
         }
 
         .hidden {
@@ -466,14 +506,14 @@
         const restaurantContainer = document.getElementById("restaurant-container");
         let selected = null;
 
-        let details = [];
-        fetch("details.json").then(res => res.json()).then(Details => {
-            details = Details;
+        let records = [];
+        fetch("records.json").then(res => res.json()).then(Records => {
+            records = Records;
         }).catch(err => console.error("Problem:", err));
 
-        function getDetails(restid) {
-            console.log(details.filter(rest => rest.id === restid));
-            return details.filter(rest => rest.id === restid);
+        function getRecords(restid) {
+            console.log(records.filter(rest => rest.id === restid).sort((a, b) => new Date(a.date) - new Date(b.date)));
+            return records.filter(rest => rest.id === restid).sort((a, b) => new Date(a.date) - new Date(b.date));
         }
 
         function toggleSelected(restid) {
@@ -500,17 +540,49 @@
 
             restaurantContainer.replaceChildren();
 
-            let restDetails = getDetails(restid)
-            if (restDetails.length == 0) {
+            let thisRestRecords = getRecords(restid)
+            console.log(thisRestRecords.length);
+            if (thisRestRecords.length == 0) {
                 const info = document.createElement("div");
-                info.textContent = "暫時未有此餐廳資料";
+                info.textContent = "還沒品嘗此餐廳! / 尚未記錄此餐廳~";
                 restaurantContainer.appendChild(info);
                 return;
             }
-            const restname = document.createElement("div");
-            restname.textContent = restDetails;
-            // restname.className = "restaurant-info-name";
-            restaurantContainer.appendChild(restname);
+            thisRestRecords.forEach(record => {
+                const recordContainer = document.createElement("div");
+                recordContainer.className = "restaurant-record";
+                restaurantContainer.appendChild(recordContainer);
+
+                const restName = document.createElement("div");
+                restName.className = "restaurant-record-restname";
+                recordContainer.appendChild(restName);
+                const restNameOffical = document.createElement("div");
+                restNameOffical.className = "restaurant-record-restname-offical";
+                const restNameOthers = document.createElement("div");
+                restNameOthers.className = "restaurant-record-restname-others";
+                restName.appendChild(restNameOffical);
+                restName.appendChild(restNameOthers);
+                restNameOffical.textContent = record.officalName;
+                restNameOthers.textContent = record.name.join(" / ");
+                if ("status" in record) {
+                    if (record.status == "closed") {
+                        const restStatus = document.createElement("div");
+                        restStatus.className = "restaurant-record-restStatus";
+                        restStatus.textContent = "已結業";
+                        restNameOffical.appendChild(restStatus);
+                    }
+                }
+
+                if ("photo" in record) {
+                    const restPhoto = document.createElement("div");
+                    restPhoto.className = "restaurant-record-restPhoto";
+                    recordContainer.appendChild(restPhoto);
+                    const restPhotoIMG = document.createElement("img");
+                    restPhoto.appendChild(restPhotoIMG);
+                    restPhotoIMG.src = `photos/${record.photo}`;
+                    restPhotoIMG.alt = "餐廳圖片";
+                }
+            });
         }
 
         const restaurantInfoClose = document.getElementById("restaurant-info-close");
@@ -520,4 +592,4 @@
     </script>
 </body>
 
-<!-- add different map styles, fix unshow restname tool swift, add panto middle when selected -->
+<!-- add different map styles, fix unshow restname tool swift, add panto middle when selected, max width for restinfo?-->
