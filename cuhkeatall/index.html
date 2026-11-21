@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>食完中大所有餐廳</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css"/>
+    <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js"></script>
 
     <style>
         body {
@@ -286,6 +291,9 @@
             color: #000000;
             padding: 10px 10px;
             overflow: hidden;
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: #00000060 transparent;
         }
         #restaurant-info .close {
             position: fixed;
@@ -336,13 +344,20 @@
         #restaurant-container {
             padding: 0px 5px;
             font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #restaurant-container > div + div {
+            border-top: 3px solid #00000020;
+            padding-top: 20px;
         }
         .restaurant-record {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
-        .restaurant-record-restname-offical {
+        .restaurant-record-restname-official {
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -364,11 +379,38 @@
         }
         .restaurant-record-restPhoto {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
         .restaurant-record-restPhoto > img {
             width: 100%;
             max-width: 300px;
+        }
+        .restaurant-record-restPhoto > div {
+            align-self: flex-start;
+        }
+        .restaurant-record-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .restaurant-record-item.bold {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .restaurant-record-items.table {
+            border-collapse: separate;
+            border-spacing: 20px 0;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+        .restaurant-record-restInfo.table {
+            align-self: flex-start;
+            border-spacing: 2px 0;
+            margin-left: -2px;
+            margin-right: -2px;
+        }
+        .restaurant-record-restInfo-icon {
+            vertical-align: top;
         }
 
         .hidden {
@@ -379,15 +421,12 @@
 
 <body>
     <div id="map"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
-        const map = L.map("map", {zoomControl: false, doubleClickZoom: false, zoomSnap: 0.25}).setView([22.4185, 114.2075], 16)
-                    .on("click", () => {
-                        Restaurant(null, null, null);
-                    });
+        const map = L.map("map", {zoomControl: false, doubleClickZoom: false, zoomSnap: 0.25, maxZoom: 19})
+                    .setView([22.4185, 114.2075], 16)
+                    .on("click", () => {Restaurant(null, null, null);});
 
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
@@ -512,8 +551,8 @@
         }).catch(err => console.error("Problem:", err));
 
         function getRecords(restid) {
-            console.log(records.filter(rest => rest.id === restid).sort((a, b) => new Date(a.date) - new Date(b.date)));
-            return records.filter(rest => rest.id === restid).sort((a, b) => new Date(a.date) - new Date(b.date));
+            console.log(records.filter(rest => rest.id === restid).sort((a, b) => new Date(b.date) - new Date(a.date)));
+            return records.filter(rest => rest.id === restid).sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
         function toggleSelected(restid) {
@@ -540,7 +579,7 @@
 
             restaurantContainer.replaceChildren();
 
-            let thisRestRecords = getRecords(restid)
+            let thisRestRecords = getRecords(restid);
             console.log(thisRestRecords.length);
             if (thisRestRecords.length == 0) {
                 const info = document.createElement("div");
@@ -556,32 +595,130 @@
                 const restName = document.createElement("div");
                 restName.className = "restaurant-record-restname";
                 recordContainer.appendChild(restName);
-                const restNameOffical = document.createElement("div");
-                restNameOffical.className = "restaurant-record-restname-offical";
+                const restNameOfficial = document.createElement("div");
+                restNameOfficial.className = "restaurant-record-restname-official";
                 const restNameOthers = document.createElement("div");
                 restNameOthers.className = "restaurant-record-restname-others";
-                restName.appendChild(restNameOffical);
+                restName.appendChild(restNameOfficial);
                 restName.appendChild(restNameOthers);
-                restNameOffical.textContent = record.officalName;
+                restNameOfficial.textContent = record.officialName;
                 restNameOthers.textContent = record.name.join(" / ");
                 if ("status" in record) {
                     if (record.status == "closed") {
                         const restStatus = document.createElement("div");
                         restStatus.className = "restaurant-record-restStatus";
                         restStatus.textContent = "已結業";
-                        restNameOffical.appendChild(restStatus);
+                        restNameOfficial.appendChild(restStatus);
                     }
                 }
 
+                const restPhoto = document.createElement("div");
+                restPhoto.className = "restaurant-record-restPhoto";
+                recordContainer.appendChild(restPhoto);
                 if ("photo" in record) {
-                    const restPhoto = document.createElement("div");
-                    restPhoto.className = "restaurant-record-restPhoto";
-                    recordContainer.appendChild(restPhoto);
                     const restPhotoIMG = document.createElement("img");
                     restPhoto.appendChild(restPhotoIMG);
                     restPhotoIMG.src = `photos/${record.photo}`;
                     restPhotoIMG.alt = "餐廳圖片";
                 }
+                const restDate = document.createElement("div");
+                restDate.className = "restaurant-record-restDate";
+                restPhoto.appendChild(restDate);
+                restDate.textContent = "品嘗日期：" + record.date;
+
+                const restOrders = document.createElement("div");
+                restOrders.className = "restaurant-record-restOrders";
+                recordContainer.appendChild(restOrders);
+                const restOrdersTitle = document.createElement("div");
+                restOrdersTitle.className = "restaurant-record-title";
+                restOrders.appendChild(restOrdersTitle);
+                restOrdersTitle.textContent = "點餐紀錄：";
+                const restOrdersItems = document.createElement("table");
+                restOrdersItems.className = "restaurant-record-items table";
+                restOrders.appendChild(restOrdersItems);
+                if ("orders" in record) {
+                    record.orders.forEach(order => {
+                        const restOrdersItem = document.createElement("tr");
+                        restOrdersItem.className = "restaurant-record-item";
+                        restOrdersItems.appendChild(restOrdersItem);
+                        const restOrdersItemName = document.createElement("td");
+                        restOrdersItem.appendChild(restOrdersItemName);
+                        const restOrdersItemPrice = document.createElement("td");
+                        restOrdersItem.appendChild(restOrdersItemPrice);
+                        restOrdersItemName.textContent = order.name;
+                        restOrdersItemPrice.textContent = order.price;
+                    });
+                    const restOrdersItem = document.createElement("div");
+                    restOrdersItem.className = "restaurant-record-item bold";
+                    restOrders.appendChild(restOrdersItem);
+                    restOrdersItem.textContent = "總數：" + record.total;
+                } else {
+                    restOrdersItems.textContent = "沒有記錄點餐商品...";
+                }
+
+                const restRating = document.createElement("div");
+                restRating.className = "restaurant-record-restRating";
+                recordContainer.appendChild(restRating);
+                const restRatingTitle = document.createElement("div");
+                restRatingTitle.className = "restaurant-record-title";
+                restRating.appendChild(restRatingTitle);
+                restRatingTitle.textContent = "小編A少少評價：";
+                const restRatingItems = document.createElement("div");
+                restRatingItems.className = "restaurant-record-items";
+                restRating.appendChild(restRatingItems);
+                if ("ratings" in record) {
+                    const labels = {overall: {"name": "整體評價"}, size: {"name": "份量", "notes": "付出的價錢符合應該得到的分量"}, CP: {"name": "性價比", "notes": "價格是否合理/平均價格能吃飽"}, taste: {"name": "食物味道", "notes": "小編喜歡吃就高分"}, environment: {"name": "環境舒適度", "notes": "包括環境整潔及美觀"}, service: {"name": "店員態度", "notes": "店員禮貌程度"}};
+                    console.log(Object.entries(record.ratings).length);
+                    Object.entries(record.ratings).forEach(([key, score]) => {
+                        const restRatingItem = document.createElement("div");
+                        if (key == "overall") restRatingItem.className = "restaurant-record-item bold";
+                        else restRatingItem.className = "restaurant-record-item";
+                        restRatingItems.appendChild(restRatingItem);
+                        restRatingItem.textContent = labels[key].name + " " + score;
+                    });
+                    if ("comment" in record) {
+                        const restRatingItem = document.createElement("div");
+                        restRatingItem.className = "restaurant-record-item";
+                        restRatingItems.appendChild(restRatingItem);
+                        restRatingItem.textContent = "評價：" + record.comment;
+                    }
+                } else {
+                    restRatingItems.textContent = "沒有評價記錄...";
+                }
+
+                const restInfo = document.createElement("table");
+                restInfo.className = "restaurant-record-restInfo table";
+                recordContainer.appendChild(restInfo);
+                const restLocation = document.createElement("tr");
+                restInfo.appendChild(restLocation);
+                const restLocationIcon = document.createElement("td");
+                restLocationIcon.className = "restaurant-record-restInfo-icon";
+                restLocation.appendChild(restLocationIcon);
+                const restLocationText = document.createElement("td");
+                restLocation.appendChild(restLocationText);
+                restLocationIcon.textContent = "📍";
+                restLocationText.textContent = record.location;
+                restLocationIcon.title = "餐廳地址";
+                const restTel = document.createElement("tr");
+                restInfo.appendChild(restTel);
+                const restTelIcon = document.createElement("td");
+                restTelIcon.className = "restaurant-record-restInfo-icon";
+                restTel.appendChild(restTelIcon);
+                const restTelText = document.createElement("td");
+                restTel.appendChild(restTelText);
+                restTelIcon.textContent = "📞";
+                restTelText.textContent = record.tel;
+                restTelIcon.title = "餐廳聯絡電話";
+                const restOpens = document.createElement("tr");
+                restInfo.appendChild(restOpens);
+                const restOpensIcon = document.createElement("td");
+                restOpensIcon.className = "restaurant-record-restInfo-icon";
+                restOpens.appendChild(restOpensIcon);
+                const restOpensText = document.createElement("td");
+                restOpens.appendChild(restOpensText);
+                restOpensIcon.textContent = "🕰️";
+                restOpensText.innerHTML = record.openHours.join("<br>");
+                restOpensIcon.title = "餐廳開放時間";
             });
         }
 
@@ -592,4 +729,4 @@
     </script>
 </body>
 
-<!-- add different map styles, fix unshow restname tool swift, add panto middle when selected, max width for restinfo?-->
+<!-- add different map styles, fix unshow restname tool swift, add panto middle when selected, max width for restinfo?, title to popup? -->
