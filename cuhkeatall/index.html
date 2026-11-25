@@ -544,7 +544,11 @@
         }
         mapStyles.addEventListener("click", (click) => {
             const clicked = click.target.closest("#map-styles > div");
-            if (clicked === mapStyles.firstElementChild) mapStyles.classList.toggle("opened");
+            if (clicked === mapStyles.firstElementChild) {
+                if (mapStyles.classList.contains("closed")) mapStyles.classList.remove("closed");
+                if (mapStyles.classList.contains("opened")) mapStyles.classList.add("closed");
+                mapStyles.classList.toggle("opened");
+            }
             else selectStyle(clicked);
         });
         mapStyles.addEventListener("mouseleave", () => {
